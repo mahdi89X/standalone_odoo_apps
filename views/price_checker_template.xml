@@ -1,0 +1,232 @@
+<odoo>
+    <template id="price_checker_template">
+        <html>
+        <head>
+            <title>Price Checker</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+            <style>
+                html, body {
+                    height: 100%; width: 100%; margin: 0; padding: 0; box-sizing: border-box;
+                }
+                body {
+                    min-height: 100vh; width: 100vw;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: background 0.4s, color 0.4s;
+                    font-family: 'Inter', Arial, sans-serif;
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                }
+.theme-back  { background-image: url('/standalone_pricechecker/static/src/img/back1.jpg'); color: #ffffff; }
+.theme-back1 { background-image: url('/standalone_pricechecker/static/src/img/back2.jpg'); color: #ffffff; }
+
+                .theme-light     { background: #f6f7fb; color: #23295a; }
+                .theme-dark      { background: #181c29; color: #e4eaf2; }
+                .theme-blue      { background: #e9f0fd; color: #143a63; }
+                .theme-green     { background: #e3ffe9; color: #155a38; }
+                .theme-retro     { background: #f4ecd8; color: #6b3c18; }
+                .theme-pink      { background: #ffe7fa; color: #7e314d; }
+                .theme-dark1     { background: #0d0d0d; color: #f1f1f1; }
+                .theme-dark2     { background: #1c1c1c; color: #e2e2e2; }
+                .theme-dark3     { background: #2a2d3b; color: #d0d0ff; }
+                .theme-dark4     { background: #2e343d; color: #e0f0f0; }
+                .theme-dark5     { background: #101820; color: #cfd9e1; }
+
+
+                .theme-light .checker-box  { background: #fff; }
+                .theme-dark .checker-box   { background: #22263a; }
+                .theme-blue .checker-box   { background: #f2f7ff; }
+                .theme-green .checker-box  { background: #f2fff7; }
+                .theme-retro .checker-box  { background: #fffaf1; }
+                .theme-pink .checker-box   { background: #fff0f8; }
+                .theme-dark1 .checker-box  { background: #1a1a1a; }
+                .theme-dark2 .checker-box  { background: #2a2a2a; }
+                .theme-dark3 .checker-box  { background: #2d3145; }
+                .theme-dark4 .checker-box  { background: #3a404a; }
+                .theme-dark5 .checker-box  { background: #1e2b35; }
+                .theme-back .checker-box   { background: rgba(0,0,0,0.6); }
+                .theme-back1 .checker-box  { background: rgba(0,0,0,0.6); }
+
+                .theme-switch {
+                    position: fixed;
+                    top: 24px;
+                    right: 30px;
+                    z-index: 99;
+                    background: #fff;
+                    color: #4973ff;
+                    border: 2px solid #4973ff;
+                    border-radius: 20px;
+                    padding: 6px 20px 7px 18px;
+                    font-size: 1.07em;
+                    font-weight: 700;
+                    cursor: pointer;
+                    box-shadow: 0 4px 24px #0002;
+                }
+
+                .checker-box {
+                    border-radius: 20px;
+                    padding: 30px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                    max-width: 600px;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    text-align: center;
+                    color: inherit;
+                }
+
+                .checker-box input[type="text"] {
+                    font-size: 1.5em;
+                    padding: 12px;
+                    border: 2px solid #ccc;
+                    border-radius: 10px;
+                    width: 100%;
+                }
+
+                .result img {
+                    display: block;
+                    margin: 0 auto 20px;
+                    max-width: 200px;
+                    height: auto;
+                    border-radius: 10px;
+                }
+
+                .label {
+                    display: block;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    text-align: center;
+                }
+
+                .result .product-name {
+                    font-size: 1.6em;
+                    color: #f0f0f0;
+                }
+                .result .product-price {
+                    font-size: 3.4em;
+                    color: #00aa66;
+                    margin-top: 20px;
+                }
+                .result .product-price-secondary {
+                    font-size: 3.2em;
+                    color: #b366ff;
+                    margin-bottom: 20px;
+
+                }
+                .result .product-price-secondary2 {
+                    font-size: 1.2em;
+                    color: #b366ff;
+visibility: hidden;
+                }
+                .result .product-qty {
+                    font-size: 1.3em;
+                    color: #cc3300;
+                }
+            </style>
+            <script>
+                var THEMES = [
+                    {name: "Light", className: "theme-light"},
+                    {name: "Dark", className: "theme-dark"},
+                    {name: "Blue", className: "theme-blue"},
+                    {name: "Green", className: "theme-green"},
+                    {name: "Retro", className: "theme-retro"},
+                    {name: "Pink", className: "theme-pink"},
+                    {name: "Dark1", className: "theme-dark1"},
+                    {name: "Dark2", className: "theme-dark2"},
+                    {name: "Dark3", className: "theme-dark3"},
+                    {name: "Dark4", className: "theme-dark4"},
+                    {name: "Dark5", className: "theme-dark5"},
+                    {name: "Back Image", className: "theme-back"},
+                    {name: "Back Image 1", className: "theme-back1"}
+                ];
+
+                function setTheme(themeIdx) {
+                    var body = document.body;
+                    THEMES.forEach(th => body.classList.remove(th.className));
+                    var current = THEMES[themeIdx];
+                    body.classList.add(current.className);
+                    var btn = document.getElementById('theme-switch-btn');
+                    if (btn) btn.innerText = "Theme: " + current.name;
+                    localStorage.setItem("pricechecker_theme_idx", themeIdx);
+                }
+
+                function nextTheme() {
+                    var idx = parseInt(localStorage.getItem("pricechecker_theme_idx")||0);
+                    idx = (idx + 1) % THEMES.length;
+                    setTheme(idx);
+                }
+
+                window.onload = function() {
+                    var input = document.getElementById('barcode');
+                    if (input) {
+                        input.focus();
+                        setInterval(() => input.focus(), 3000);
+                    }
+
+                    var themeBtn = document.createElement("button");
+                    themeBtn.id = "theme-switch-btn";
+                    themeBtn.type = "button";
+                    themeBtn.className = "theme-switch";
+                    themeBtn.innerText = "Theme: Light";
+                    themeBtn.onclick = nextTheme;
+                    document.body.appendChild(themeBtn);
+
+                    var qtyBtn = document.createElement("button");
+                    qtyBtn.id = "toggle-qty-btn";
+                    qtyBtn.type = "button";
+                    qtyBtn.className = "theme-switch";
+                    qtyBtn.style.top = "70px";
+                    qtyBtn.innerText = "Show Quantity";
+                    qtyBtn.onclick = function() {
+                        var qline = document.getElementById("quantity-line");
+                        if (qline.style.display === "none") {
+                            qline.style.display = "block";
+                            qtyBtn.innerText = "Hide Quantity";
+                            localStorage.setItem("pricechecker_show_qty", "1");
+                        } else {
+                            qline.style.display = "none";
+                            qtyBtn.innerText = "Show Quantity";
+                            localStorage.setItem("pricechecker_show_qty", "0");
+                        }
+                    };
+                    document.body.appendChild(qtyBtn);
+
+                    setTheme(parseInt(localStorage.getItem("pricechecker_theme_idx")||0));
+                    var showQty = localStorage.getItem("pricechecker_show_qty");
+                    if (showQty === "1") {
+                        document.getElementById("quantity-line").style.display = "block";
+                        qtyBtn.innerText = "Hide Quantity";
+                    }
+                };
+            </script>
+        </head>
+        <body class="theme-light">
+            <div class="checker-box">
+                <form method="get" action="/price" autocomplete="off">
+                    <label class="label" for="barcode">Enter or scan barcode</label>
+                    <input type="text" name="barcode" id="barcode" value=""/>
+                </form>
+                <div class="result">
+                    <t t-if="barcode and not product">
+                        <div class="notfound">No product found.</div>
+                    </t>
+                    <t t-if="product">
+                        <t t-if="product.image_1920">
+                        <img t-att-src="'data:image/png;base64,%s' % product.image_1920.decode('utf-8')"/>
+                        </t>
+                        <div class="product-name"> <t t-esc="product.name"/></div>
+                        <div class="product-price"><t t-esc="product.lst_price"/> <t t-esc="product.currency_id.symbol"/></div>
+
+<div class="product-price-secondary2" t-if="price_usd"><b>USD:</b> <t t-esc="price_usd"/> $</div> 
+<div class="product-price-secondary" t-if="price_lbp"><b></b> <t t-esc="'{:,.0f}'.format(price_lbp)"/> L.L</div>
+                        <div id="quantity-line" class="product-qty" style="display:none;"><b>Quantity:</b> <t t-esc="product.qty_available"/></div>
+                    </t>
+                </div>
+            </div>
+        </body>
+        </html>
+    </template>
+</odoo>
